@@ -1,0 +1,8 @@
+Create a Scheduling to the Calender using the Nylas API.
+Features.
+1. User can create event
+2. User can delete the event
+3. User can add the event to the calender
+
+Gradnt ID: 6c8b3195-9e10-4907-a7b0-530c90d1b412
+API Key: nyk_v0_tSNopKCVHAJAdWTz7uDIVASJrmF5DMsmF2jprNLdrS3v8EZNgm2gDKRptt8pV0Do
