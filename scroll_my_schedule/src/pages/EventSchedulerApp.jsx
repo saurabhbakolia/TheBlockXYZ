@@ -52,7 +52,7 @@ function EventSchedulerApp() {
         console.log('Create event');
     };
 
-    const handleListEvent = () => {
+    const handleListEvent = async () => {
         console.log('List event');
         // Retrieve the authorization code from session storage
         const authorizationCode = sessionStorage.getItem('authorizationCode');
@@ -63,17 +63,22 @@ function EventSchedulerApp() {
         }
 
         // Make a request to the API endpoint to list events using Axios
-        axios.get(`http://localhost:8080/nylas/list-events?code=${authorizationCode}`)
+        await axios.get(`http://localhost:8080/nylas/list-events?code=${authorizationCode}`)
             .then(response => {
                 // Handle the response data (e.g., display events)
-                setEvents(response.data);
-                console.log('List of events:', response.data);
+                setEvents(response.data.data);
+                console.log(events.length);
+                console.log('List of events:', response.data.data);
             })
             .catch(error => {
                 console.error('Error:', error);
                 message.error('Failed to fetch events');
             });
     };
+
+    useEffect(() => {
+        handleListEvent();
+    }, []);
 
     const handleCancel = () => {
         setIsModalVisible(false);
@@ -96,7 +101,7 @@ function EventSchedulerApp() {
             const { title, startTime, endTime } = values;
             console.log('Form values:', title, startTime, endTime);
             // Make a GET request to the API endpoint to create an event
-            const response = await axios.post(`http://localhost:8080/nylas/create-event?code=${authorizationCode}`,{
+            const response = await axios.post(`http://localhost:8080/nylas/create-event?code=${authorizationCode}`, {
                 title,
                 startTime: startTime.unix(),
                 endTime: endTime.unix(),
@@ -145,27 +150,19 @@ function EventSchedulerApp() {
                     </div>
                     <div className="flex flex-wrap justify-center">
                         {events.length > 0 ? events.map(event => (
-                            <Card key={event.id} title={event.title} style={{ width: 300, margin: '0.5rem' }}>
+                            <Card
+                                key={event.id}
+                                title={event.title}
+                                style={{ width: 300, margin: '0.5rem', borderRadius: '10px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}
+                            >
                                 <p><strong>Description:</strong> {event.description || 'No description'}</p>
                                 <p><strong>Start Time:</strong> {new Date(event.when.startTime * 1000).toLocaleString()}</p>
                                 <p><strong>End Time:</strong> {new Date(event.when.endTime * 1000).toLocaleString()}</p>
-                                <a href={event.htmlLink} target="_blank" rel="noopener noreferrer">View Event</a>
-                                <Divider />
+                                <a href={event.htmlLink} target="_blank" rel="noopener noreferrer" style={{ color: '#1890ff' }}>View Event</a>
+                                <Divider style={{ margin: '12px 0' }} />
                             </Card>
-                        )) : <h4 className='text-blue-400'>No events to display.</h4>}
+                        )) : <p>No Events Found!</p>}
                     </div>
-
-                    {/* <div className="flex flex-wrap justify-center">
-                        {events.length >= 1 ? events.map(event => (
-                            <Card key={event.id} title={event.title} style={{ width: 300, margin: '0.5rem' }}>
-                                <p>Description: {event.description || 'No description'}</p>
-                                <p>Start Time: {new Date(event.when.startTime * 1000).toLocaleString()}</p>
-                                <p>End Time: {new Date(event.when.endTime * 1000).toLocaleString()}</p>
-                                <a href={event.htmlLink} target="_blank" rel="noopener noreferrer">View Event</a>
-                            </Card>
-                        )) : ""}
-                    </div> */}
-
                 </div>
             </main>
             <Modal
