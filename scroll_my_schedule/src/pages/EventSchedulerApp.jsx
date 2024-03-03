@@ -187,7 +187,7 @@ function EventSchedulerApp() {
                     <div className='text-center py-4'>
                         {authorized ? (
                             <>
-                                <Button type="primary" onClick={handleListEvent}>List Event</Button>
+                                {/* <Button type="primary" onClick={handleListEvent}>List Event</Button> */}
                                 <Button type="primary" onClick={handleCreateEvent}>Create Event</Button>
                             </>
                         ) : (
@@ -195,7 +195,7 @@ function EventSchedulerApp() {
                         )}
                     </div>
                     <div className="flex flex-wrap justify-center">
-                        {events.length > 0 ? events.map(event => (
+                        {events.length > 0 && events.map(event => (
                             <Card
                                 key={event.id}
                                 title={event.title}
@@ -208,7 +208,7 @@ function EventSchedulerApp() {
                                 <Divider style={{ margin: '12px 0' }} />
                                 <Button type="primary" danger onClick={() => handleDeleteEvent(event.id)}>Delete</Button>
                             </Card>
-                        )) : <p>No Events Found!</p>}
+                        ))}
                     </div>
                 </div>
             </main>

@@ -74,7 +74,7 @@ app.get("/nylas/primary-calendar", async (req, res) => {
 
         // NB: This stores in RAM
         // In a real app you would store this in a database, associated with a user
-        process.env.PRIMARY_CALENDAR_ID = await primaryCalendar.id;
+        process.env.PRIMARY_CALENDAR_ID = primaryCalendar.id;
         console.log('Primary Calendar ID:', primaryCalendar.id);
 
         res.json(primaryCalendar);
@@ -87,16 +87,13 @@ app.get("/nylas/primary-calendar", async (req, res) => {
 app.get("/nylas/list-events", async (req, res) => {
     try {
         const identifier = process.env.USER_GRANT_ID;
-        console.log('Identifier:', identifier);
         const calendarId = process.env.PRIMARY_CALENDAR_ID;
-        // const calendarId = 'saurabhbakolia2002@gmail.com';
-        console.log('Calendar ID:', calendarId);
+        console.log('calenderId, and identifier', calendarId, identifier);
 
         const events = await nylas.events.list({
             identifier,
             queryParams: {
                 calendar_id: calendarId,
-                limit: 5,
             },
         });
         console.log('Events in Backend:', events);
