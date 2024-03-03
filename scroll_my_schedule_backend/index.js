@@ -69,12 +69,13 @@ app.get("/nylas/primary-calendar", async (req, res) => {
             identifier,
             calendarId: "primary",
         });
-
+        console.log('Calendars:', calendars.data);
         const primaryCalendar = calendars.data;
 
         // NB: This stores in RAM
         // In a real app you would store this in a database, associated with a user
-        process.env.PRIMARY_CALENDAR_ID = primaryCalendar.id;
+        process.env.PRIMARY_CALENDAR_ID = await primaryCalendar.id;
+        console.log('Primary Calendar ID:', primaryCalendar.id);
 
         res.json(primaryCalendar);
     } catch (error) {
@@ -86,7 +87,10 @@ app.get("/nylas/primary-calendar", async (req, res) => {
 app.get("/nylas/list-events", async (req, res) => {
     try {
         const identifier = process.env.USER_GRANT_ID;
+        console.log('Identifier:', identifier);
         const calendarId = process.env.PRIMARY_CALENDAR_ID;
+        // const calendarId = 'saurabhbakolia2002@gmail.com';
+        console.log('Calendar ID:', calendarId);
 
         const events = await nylas.events.list({
             identifier,
@@ -95,7 +99,7 @@ app.get("/nylas/list-events", async (req, res) => {
                 limit: 5,
             },
         });
-
+        console.log('Events in Backend:', events);
         res.json(events);
     } catch (error) {
         console.error("Error fetching events:", error);
@@ -145,9 +149,31 @@ app.post("/nylas/create-event", async (req, res) => {
             },
         });
 
+        console.log('Event created:', newEvent);
         res.json(newEvent);
     } catch (error) {
         console.error("Error creating event:", error);
+    }
+});
+
+app.post("/nylas/delete-event", async (req, res) => {
+    try {
+        const identifier = process.env.USER_GRANT_ID;
+        const calendarId = process.env.PRIMARY_CALENDAR_ID;
+
+        const { eventId } = req.body;
+
+        const deletedEvent = await nylas.events.destroy({
+            identifier,
+            eventId,
+            queryParams: {
+                calendarId,
+            },
+        });
+        console.log('Event deleted:', deletedEvent);
+        res.json(deletedEvent);
+    } catch (error) {
+        console.error("Error deleting event:", error);
     }
 });
 

@@ -14,13 +14,12 @@ function EventSchedulerApp() {
         const saveCodeToSession = async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
-            console.log("code: " + code);
 
             if (code) {
                 sessionStorage.setItem('authorizationCode', code);
-                setAuthorized(true);
-
+                console.log('Authorization code:', sessionStorage.getItem('authorizationCode'));
                 try {
+                    const code = sessionStorage.getItem('authorizationCode');
                     // Make a request to the API endpoint to exchange the code for a token
                     const response = await axios.get(`http://localhost:8080/oauth/exchange?code=${code}`);
                     // Handle the response here
@@ -29,12 +28,11 @@ function EventSchedulerApp() {
                     const calendarResponse = await axios.get(`http://localhost:8080/nylas/primary-calendar?code=${code}`);
                     // Store the primary calendar ID in session storage
                     sessionStorage.setItem('primaryCalendarId', calendarResponse.data.id);
-
-                    // Set authorized state to true
                     setAuthorized(true);
                 } catch (error) {
                     console.error("Error exchanging code for token:", error);
                 }
+                console.log('Authorize State Changed', authorized);
             }
         };
 
@@ -76,9 +74,9 @@ function EventSchedulerApp() {
             });
     };
 
-    useEffect(() => {
-        handleListEvent();
-    }, []);
+    // useEffect(() => {
+    //     handleListEvent();
+    // }, []);
 
     const handleCancel = () => {
         setIsModalVisible(false);
@@ -121,6 +119,8 @@ function EventSchedulerApp() {
                 return [...prevEvents, eventData];
             });
 
+            console.log('Events saved inside the useState:', events);
+
 
             // Close the modal
             setIsModalVisible(false);
@@ -130,6 +130,52 @@ function EventSchedulerApp() {
             message.error('Failed to create event');
         }
     };
+
+    // useEffect(() => {
+    //     console.log('Events updated:', events);
+    // }, [events]);
+
+    // const handleDeleteEvent = async (eventId) => {
+    //     console.log('Delete event:', eventId);
+    //     try {
+    //         // Make a POST request to the API endpoint to delete the event
+    //         const response = await axios.post(`http://localhost:8080/nylas/delete-event`, {
+    //             eventId: eventId
+    //         });
+
+    //         // Handle the response (e.g., display a success message)
+    //         console.log('Event deleted successfully:', response.data);
+
+    //         // Update the state to remove the deleted event
+    //         setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+    //         message.success(response.data);
+    //     } catch (error) {
+    //         console.error('Error deleting event:', error);
+    //         // Handle errors (e.g., display an error message)
+    //         message.error('Failed to delete event');
+    //     }
+    // };
+
+    const handleDeleteEvent = async (eventId) => {
+        console.log('Delete event', eventId);
+        try {
+            // Make a POST request to the API endpoint to delete the event
+            const response = await axios.post(`http://localhost:8080/nylas/delete-event`, {
+                eventId: eventId
+            });
+
+            // Handle the response (e.g., display a success message)
+            console.log('Event deleted successfully:', response.data);
+
+            // Update the state to remove the deleted event
+            setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+            message.success(response.data);
+        } catch (error) {
+            console.error('Error deleting event:', error);
+            // Handle errors (e.g., display an error message)
+            message.error('Failed to delete event');
+        }
+    }
 
     return (
         <div>
@@ -160,6 +206,7 @@ function EventSchedulerApp() {
                                 <p><strong>End Time:</strong> {new Date(event.when.endTime * 1000).toLocaleString()}</p>
                                 <a href={event.htmlLink} target="_blank" rel="noopener noreferrer" style={{ color: '#1890ff' }}>View Event</a>
                                 <Divider style={{ margin: '12px 0' }} />
+                                <Button type="primary" danger onClick={() => handleDeleteEvent(event.id)}>Delete</Button>
                             </Card>
                         )) : <p>No Events Found!</p>}
                     </div>
